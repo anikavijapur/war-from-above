@@ -10,7 +10,7 @@
 <style>
 /* Cover page image: change the file name here (put the file in the images folder).
    If the file is missing, a plain dark background shows instead. */
-:root{--cover:url(https://iari.site/wp-content/uploads/2025/03/Senza-titolo-85.png);--ink:#16222b;--mute:#5a6872;--flag:#d6293e;--deep:#14424a}
+:root{--cover:url(images/cover.jpeg);--ink:#16222b;--mute:#5a6872;--flag:#d6293e;--deep:#14424a}
 #cover{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:8vh 6vw;color:#fff;background:linear-gradient(90deg,rgba(10,18,24,.88),rgba(10,18,24,.45)),var(--cover) center/cover,#16222b}
 #cover h1{font:600 clamp(2rem,8vw,5.4rem)/1.1 Poppins,Arial,Helvetica,sans-serif;margin:0 0 .6em}
 #cover h1 span{display:block}
@@ -57,6 +57,7 @@ h2{font:700 1.55rem/1.15 Georgia,"Times New Roman",serif;margin:0 0 .5em}
 #credit{position:absolute;right:16px;bottom:10px;margin:0;font-size:.78rem;color:#fff;text-shadow:0 1px 3px #000;max-width:50vw;text-align:right}
 /* images marked fit:'contain' (annotated figures) are shown whole, beside the text card */
 .layer.fig{background-size:contain;background-repeat:no-repeat;inset:0 0 0 min(460px,38vw)}
+.layer.figc{background-size:contain;background-repeat:no-repeat;background-position:center;inset:0}
 #credit a{color:#fff}
 #cBody ul{margin:0 0 .8em;padding-left:1.2em}
 #cBody li{margin-bottom:.35em}
@@ -108,9 +109,9 @@ h2{font:700 1.55rem/1.15 Georgia,"Times New Roman",serif;margin:0 0 .5em}
    Use images of about the same shape as a widescreen (16:9), 2000px wide or more.
    ===================================================================== */
 const IMAGES = {
-  raw:       { src: 'images/raw.jpg',    fb: '#55664f' },   // Google Maps screenshot of Al-Shifa, 14 October 2026
-  before:    { src: 'images/before.jpg', fb: '#5d7050' },   // Al-Shifa before the damage
-  after:     { src: 'images/after.jpg',  fb: '#3a3a36' },   // Al-Shifa after the damage
+  raw:       { src: 'images/raw.jpeg',    fb: '#0f1a21', fit: 'contain' },   // Google Maps screenshot of Al-Shifa, 14 October 2026
+  before:    { src: 'images/before.png', fb: '#5d7050', fit: 'contain' },   // Al-Shifa before the damage
+  after:     { src: 'images/after.png',  fb: '#3a3a36' },   // Al-Shifa after the damage
   // Forensic Architecture figures. fit:'contain' shows the whole image so no annotation is cropped.
   // These load from the FA website. For the final version, download them into /images and change the paths.
   annotated: { src: 'https://content.forensic-architecture.org/wp-content/uploads/2024/05/Figure_0-2400x1732.png', fb: '#0f1a21', fit: 'contain' },
@@ -141,15 +142,15 @@ const STEPS = [
   // ----- Slide 3: before / after slider (case study) -----
   { part:'Case Study:', title:'Al-Shifa Hospital, Gaza Strip',
     body:`<p>How do we analyse a satellite image of a conflict zone?</p>`,
-    compare:true, labels:['Before [EDIT date]','After [EDIT date]'],
-    img:'after', fx:50, fy:50, z:1.1, credit:'[EDIT satellite image source and dates]' },
+    compare:true, labels:['Before October 22, 2023','After March 27, 2024'],
+    img:'after', fx:50, fy:50, z:1.1, credit:'[Source: Maxar Technologies • Captured between October 22, 2023 and March 27, 2024]' },
 
   // ----- Slide 4: Forensic Architecture -----
-  { title:'ANNOTATED IMAGE by Forensic Architecture',
+  { title:'Annotated Imageby Forensic Architecture',
     body:`<p>Forensic Architecture (FA) is an interdisciplinary research agency which seeks to develop new techniques for investigating state and corporate violence. Their team includes architects, software developers, filmmakers, investigative journalists, scientists, and lawyers, operating across human rights, journalism, architecture, art and aesthetics, academia and the law.</p>`,
-    img:'after', fx:62, fy:45, z:1.5, credit:'[EDIT satellite image source]' },
+    img:'fa.jpg', fx:62, fy:45, z:1.5, credit:'[Source: Maxar Technologies • Captured between October 22, 2023 and March 27, 2024]' },
 
-  { title:'RAW SATELLITE IMAGE',
+  { title:'Satellite image of al-Shifa Hospital, Gaza Strip',
     body:`<p>Google Maps, 14 October 2026. <a href="https://www.google.com/maps/@31.5240788,34.443061,372m/data=!3m1!1e3?entry=ttu&amp;g_ep=EgoyMDI2MTAwNC4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener">View on Google Maps</a></p>`,
     img:'raw', fx:50, fy:50, z:1.05, credit:'Imagery: Google Maps, 14 October 2026' },
 
@@ -209,7 +210,7 @@ const layers = {};
 Object.entries(IMAGES).forEach(([k,v])=>{
   const d=document.createElement('div'); d.className='layer';
   d.style.backgroundImage = `url(${v.src}), repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0 1px,transparent 1px 60px), repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 1px,transparent 1px 60px), radial-gradient(circle at 30% 40%,rgba(255,255,255,.12),transparent 40%)`;
-  d.style.backgroundColor = v.fb; if(v.fit) d.classList.add('fig');
+  d.style.backgroundColor = v.fb; if(v.fit) d.classList.add(v.fit==='center'?'figc':'fig');
   stage.insertBefore(d, $('shade')); layers[k]=d;
 });
 // markers live inside their image layer so they move with it
