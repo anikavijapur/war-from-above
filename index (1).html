@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>War From Above: Satellite Imagery and Civilian Harm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* Cover page image: change the file name here (put the file in the images folder).
+   If the file is missing, a plain dark background shows instead. */
+:root{--cover:url(images/cover.jpeg);--ink:#16222b;--mute:#5a6872;--flag:#d6293e;--deep:#14424a}
+#cover{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:8vh 6vw;color:#fff;background:linear-gradient(90deg,rgba(10,18,24,.88),rgba(10,18,24,.45)),var(--cover) center/cover,#16222b}
+#cover h1{font:600 clamp(2rem,8vw,5.4rem)/1.1 Poppins,Arial,Helvetica,sans-serif;margin:0 0 .6em}
+#cover h1 span{display:block}
+#cover h1 .t2{font-size:.38em;font-weight:500;margin-top:.5em;letter-spacing:.01em}
+#cover .q{font:italic 1.3rem/1.4 Georgia,serif;max-width:34em;margin:0 0 2em;border-left:4px solid var(--flag);padding-left:16px}
+#cover p{margin:0 0 .3em}
+#cover .who{font-size:1.05rem;max-width:36em}
+#cover .begin{margin-top:2.5em;color:#fff;text-decoration:none;border-bottom:2px solid var(--flag);align-self:flex-start;padding-bottom:2px}
+#cover .begin:hover{border-color:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:#0f1a21;font:17px/1.55 Arial,Helvetica,sans-serif;color:var(--ink)}
+#story{position:relative}
+#stage{position:sticky;top:0;height:100vh;overflow:hidden}
+.layer{position:absolute;inset:0;opacity:0;transition:opacity .9s ease;background-size:cover;background-position:center}
+.layer.on{opacity:1}
+.mk{position:absolute;opacity:0;transition:opacity .4s;pointer-events:none;transform:translate(-50%,-50%) scale(var(--iz,1))}
+.mk.show{opacity:1}
+.mk i{display:block;width:30px;height:30px;border:3px solid var(--flag);border-radius:50%;background:rgba(214,41,62,.18)}
+.mk b{position:absolute;left:38px;top:2px;background:var(--flag);color:#fff;font:600 13px/1.3 Arial,sans-serif;padding:3px 8px;white-space:nowrap}
+#shade{position:absolute;inset:0;z-index:3;background:linear-gradient(90deg,rgba(10,18,24,.55),rgba(10,18,24,0) 60%);pointer-events:none}
+.card,#credit,#bar{z-index:4}
+/* before/after overlay */
+#cmp{--p:50%;position:absolute;inset:0;z-index:2;opacity:0;pointer-events:none;transition:opacity .4s}
+#cmp.show{opacity:1}
+#cmpClip{position:absolute;inset:0;overflow:hidden;clip-path:inset(0 calc(100% - var(--p)) 0 0)}
+#cmpClip .layer{opacity:1;transition:none}
+#cmpLine{position:absolute;top:0;bottom:0;left:var(--p);width:3px;margin-left:-1px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+#cmpHandle{position:absolute;top:42%;left:var(--p);width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:#fff;border:3px solid var(--deep);color:var(--deep);font:700 18px/40px Arial,sans-serif;text-align:center;cursor:ew-resize;touch-action:none;pointer-events:none}
+#cmp.show #cmpHandle{pointer-events:auto}
+.ctag{position:absolute;top:18px;background:rgba(22,34,43,.88);color:#fff;font-size:.85rem;padding:3px 10px}
+
+.card{position:absolute;left:4vw;bottom:8vh;width:min(430px,92vw);max-height:80vh;overflow:auto;background:rgba(255,255,255,.97);padding:22px 26px 24px;border-top:4px solid var(--deep);transition:opacity .18s}
+.card.out{opacity:0}
+.card.hero{bottom:auto;top:50%;transform:translateY(-50%);width:min(560px,92vw)}
+.card.hero h2{font-size:clamp(2.2rem,5vw,3.4rem)}
+#cPart{margin:0 0 6px;font-size:.85rem;color:var(--mute)}
+h2{font:700 1.55rem/1.15 Georgia,"Times New Roman",serif;margin:0 0 .5em}
+#cBody p{margin:0 0 .8em}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.cols div{font-size:.92rem;padding-top:8px;border-top:3px solid var(--deep)}
+.cols div.no{border-color:var(--flag)}
+.cols strong{display:block;margin-bottom:2px}
+#bar{position:absolute;left:0;top:0;height:4px;background:var(--flag);width:0}
+#credit{position:absolute;right:16px;bottom:10px;margin:0;font-size:.78rem;color:#fff;text-shadow:0 1px 3px #000;max-width:50vw;text-align:right}
+/* images marked fit:'contain' (annotated figures) are shown whole, beside the text card */
+.layer.fig{background-size:contain;background-repeat:no-repeat;inset:0 0 0 min(460px,38vw)}
+.layer.figc{background-size:contain;background-repeat:no-repeat;background-position:center;inset:0}
+#credit a{color:#fff}
+#cBody ul{margin:0 0 .8em;padding-left:1.2em}
+#cBody li{margin-bottom:.35em}
+#cBody a{color:var(--deep)}
+@media(max-width:700px){
+  .layer.fig{inset:0 0 62vh 0}
+  .card,.card.hero{left:3vw;right:3vw;width:auto;bottom:3vh;top:auto;transform:none;max-height:58vh;overflow:auto;padding:16px 18px}
+  .cols{grid-template-columns:1fr}
+  #credit{display:none}
+}
+@media(prefers-reduced-motion:reduce){.layer,.mk,.card{transition:none}}
+</style>
+</head>
+<body>
+
+<!-- ===== COVER PAGE: edit the text between the tags ===== -->
+<header id="cover">
+  <h1><span class="t1">War From Above:</span><span class="t2">Satellite Imagery and Civilian Harm</span></h1>
+  <p class="q">How has satellite imagery transformed what can be seen, known and proved about civilian harm in war?</p>
+  <a class="begin" href="#story">Scroll to begin</a>
+</header>
+
+<div id="story">
+  <div id="stage">
+    <div id="cmp">
+      <div id="cmpClip"></div>
+      <div id="cmpLine"></div>
+      <span class="ctag" id="tagA" style="left:18px"></span>
+      <span class="ctag" id="tagB" style="right:18px"></span>
+      <div id="cmpHandle" role="slider" tabindex="0" aria-label="Before and after slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">&#8596;</div>
+    </div>
+    <div id="shade"></div>
+    <div class="card" id="card">
+      <p id="cPart"></p>
+      <h2 id="cTitle"></h2>
+      <div id="cBody"></div>
+      <div class="cols" id="cCols" hidden></div>
+    </div>
+    <p id="credit"></p>
+    <div id="bar"></div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   1. YOUR IMAGES
+   Put image files in an "images" folder. Change the file names here.
+   "fb" is the placeholder colour shown only if a file is missing.
+   Use images of about the same shape as a widescreen (16:9), 2000px wide or more.
+   ===================================================================== */
+const IMAGES = {
+  raw:       { src: 'images/raw.jpeg',    fb: '#0f1a21', fit: 'contain' },   // Google Maps screenshot of Al-Shifa, 14 October 2026
+  before:    { src: 'images/before.png', fb: '#5d7050', fit: 'contain' },   // Al-Shifa before the damage
+  after:     { src: 'images/after.png',  fb: '#3a3a36' },   // Al-Shifa after the damage
+  // Forensic Architecture figures. fit:'contain' shows the whole image so no annotation is cropped.
+  // These load from the FA website. For the final version, download them into /images and change the paths.
+  annotated: { src: 'https://content.forensic-architecture.org/wp-content/uploads/2024/05/Figure_0-2400x1732.png', fb: '#0f1a21', fit: 'contain' },
+  angle:     { src: 'https://content.forensic-architecture.org/wp-content/uploads/2024/05/Figure_5-2400x1301.png', fb: '#0f1a21', fit: 'contain' }
+};
+
+/* =====================================================================
+   2. YOUR STORY: one block per scroll step. Edit only the text in quotes.
+   part   = small label above the title
+   title  = headline
+   body   = paragraph text (you can use <p>...</p> for several paragraphs)
+   can / cant = optional two boxes: "the image can show" / "cannot show"
+   img    = which image is behind: raw, before, after, annotated, ground
+   fx, fy = the point of the image to look at, in % (0-100 across, 0-100 down)
+   z      = zoom (1 = whole image, 2 = twice as close). Keep z at 1.4 or more
+            when fx/fy are far from 50, or an edge of the image will show.
+   marks  = optional red markers on the image: {x, y, t} in % with a label
+   credit = image credit shown bottom right
+   compare = true shows the draggable before/after overlay on that step
+   labels  = the two small labels for the overlay: ['Before ...','After ...']
+   ===================================================================== */
+const STEPS = [
+  // ----- Slide 2: the image with no caption -----
+  { title:'Here is an image with no caption',
+    body:`<p>What do you see?</p>`,
+    img:'raw', fx:50, fy:50, z:1.05, credit:'' },
+
+  // ----- Slide 3: before / after slider (case study) -----
+  { part:'Case Study:', title:'Al-Shifa Hospital, Gaza Strip',
+    body:`<p>How do we analyse a satellite image of a conflict zone?</p>`,
+    compare:true, labels:['Before October 22, 2023','After March 27, 2024'],
+    img:'after', fx:50, fy:50, z:1.1, credit:'[Source: Maxar Technologies • Captured between October 22, 2023 and March 27, 2024]' },
+
+  // ----- Slide 4: Forensic Architecture -----
+  { title:'Annotated Imageby Forensic Architecture',
+    body:`<p>Forensic Architecture (FA) is an interdisciplinary research agency which seeks to develop new techniques for investigating state and corporate violence. Their team includes architects, software developers, filmmakers, investigative journalists, scientists, and lawyers, operating across human rights, journalism, architecture, art and aesthetics, academia and the law.</p>`,
+    img:'fa.jpg', fx:62, fy:45, z:1.5, credit:'[Source: Maxar Technologies • Captured between October 22, 2023 and March 27, 2024]' },
+
+  { title:'Satellite image of al-Shifa Hospital, Gaza Strip',
+    body:`<p>Google Maps, 14 October 2026. <a href="https://www.google.com/maps/@31.5240788,34.443061,372m/data=!3m1!1e3?entry=ttu&amp;g_ep=EgoyMDI2MTAwNC4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener">View on Google Maps</a></p>`,
+    img:'raw', fx:50, fy:50, z:1.05, credit:'Imagery: Google Maps, 14 October 2026' },
+
+  { title:"INVESTIGATOR'S DESCRIPTION",
+    body:`<p>An annotated satellite image (© Maxar Technologies) of al-Shifa Hospital from 1 April 2024 showing the locations of four desecrated burial grounds (in red) and two sites (in yellow) where bodies of Palestinians killed during the second Israeli invasion were exhumed after the army withdrew from the compound. Nine numbered camera cones indicate the positions of cameras that captured the visual evidence from al-Shifa that we analysed.</p>`,
+    img:'annotated', fx:50, fy:50, z:1, credit:'Forensic Architecture. Satellite image © Maxar Technologies' },
+
+  { title:'Sites A, B, E and F, from camera position 5',
+    body:`<p>A photograph posted on 2 April showing the locations of two makeshift burial grounds (Site A and Site B) and the two areas of exhumation (Site E and Site F) within Forensic Architecture's 3D model of al-Shifa Hospital compound. This image shows the broad destruction to al-Shifa Hospital, including the desecration of a mass grave (Site A, outlined in red dash), a burial ground (Site B, outlined in red) and two sites where bodies were exhumed following the second Israeli invasion (Site E and Site F, outlined in yellow).</p><p>Photo: Mahmoud Abusalama (Source: <a href="https://www.instagram.com/p/C5QUPCGN58J/?hl=en&amp;img_index=1" target="_blank" rel="noopener">Instagram</a>)</p>`,
+    img:'angle', fx:50, fy:50, z:1, credit:'Forensic Architecture; photo: Mahmoud Abusalama' },
+
+  // ----- Slide 5: the law -----
+  { title:'When does an attack on a hospital constitute a war crime?',
+    body:'',
+    img:'after', fx:50, fy:50, z:1.1, credit:'[EDIT satellite image source]' },
+
+  { title:'I. Legal protection',
+    body:`<p>International humanitarian law (IHL) defines what is permitted and prohibited in war</p><ul><li>Articles 18–19 of the Fourth Geneva Convention</li><li>Articles 12–13 of Additional Protocol I</li></ul>`,
+    img:'after', fx:35, fy:50, z:1.6, credit:'[EDIT satellite image source]' },
+
+  { title:'II. War crime assessment',
+    body:`<p>International criminal law (ICL) defines which violations constitute war crimes and the conditions for individual criminal responsibility</p><ul><li>Rome Statute, Article 8(2)(b)(ix) for international armed conflicts</li><li>Rome Statute, Article 8(2)(e)(iv) for non-international armed conflicts</li></ul>`,
+    img:'after', fx:65, fy:45, z:1.6, credit:'[EDIT satellite image source]' },
+
+  { title:'III. Unresolved legal question:',
+    body:`<p>Which legal framework applies to the events in Gaza: international or non-international armed conflict?</p>`,
+    img:'after', fx:50, fy:60, z:1.4, credit:'[EDIT satellite image source]' },
+
+  { title:'IV. What can this prove?',
+    body:`<ul><li>destruction is observable in satellite images → the nature of the destruction and the possible crime associated with it is for international law courts to decide</li><li>imagery constitutes a part of evidence that will be examined in due process (incomplete by itself)</li><li>however until a judgement is made, we remain free to interpret and integrate the changes satellite imagery witnessed into our understanding of the conflict, and how we wish to interact with each belligerent</li></ul>`,
+    img:'after', fx:50, fy:50, z:1.1, credit:'[EDIT satellite image source]' },
+
+  // ----- Slide 6: what is missing -----
+  { title:'And what is missing?',
+    body:`<p><strong>What else is needed:</strong></p><ul><li><strong>Ground photos/video:</strong> show damage invisible from above, such as walls and interiors.</li><li><strong>Witness testimony:</strong> gives events, people and context.</li><li><strong>Munition/shrapnel analysis:</strong> identifies the weapon type and source.</li><li><strong>Communications/operational evidence:</strong> reveals intent, knowledge and decision-making.</li></ul>`,
+    img:'after', fx:40, fy:55, z:1.5, credit:'[EDIT satellite image source]' },
+
+  // ----- Slide 7: the same image, one last time -----
+  { title:'“What can you see now, what can you know, and what can you prove?”',
+    body:'',
+    img:'raw', fx:50, fy:50, z:1.05, credit:'Imagery: Google Maps, 14 October 2026' }
+];
+
+/* =====================================================================
+   3. HOW LONG EACH STEP LASTS (in screen heights). Larger = slower scroll.
+   ===================================================================== */
+const STEP_HEIGHT_VH = 130;
+
+/* ======================= code below: no need to edit ======================= */
+const $ = id => document.getElementById(id);
+const story=$('story'), stage=$('stage'), card=$('card');
+const n = STEPS.length;
+story.style.height = ((n-1)*STEP_HEIGHT_VH + 100) + 'vh';
+
+// image layers
+const layers = {};
+Object.entries(IMAGES).forEach(([k,v])=>{
+  const d=document.createElement('div'); d.className='layer';
+  d.style.backgroundImage = `url(${v.src}), repeating-linear-gradient(0deg,rgba(255,255,255,.08) 0 1px,transparent 1px 60px), repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 1px,transparent 1px 60px), radial-gradient(circle at 30% 40%,rgba(255,255,255,.12),transparent 40%)`;
+  d.style.backgroundColor = v.fb; if(v.fit) d.classList.add(v.fit==='center'?'figc':'fig');
+  stage.insertBefore(d, $('shade')); layers[k]=d;
+});
+// markers live inside their image layer so they move with it
+STEPS.forEach((s,i)=>(s.marks||[]).forEach(m=>{
+  const e=document.createElement('div'); e.className='mk'; e.dataset.step=i;
+  e.style.left=m.x+'%'; e.style.top=m.y+'%';
+  e.innerHTML=`<i></i><b>${m.t}</b>`; layers[s.img].appendChild(e);
+}));
+
+// before/after overlay: a copy of the "before" layer, clipped by the slider
+const cmpLayer=layers.before.cloneNode(); cmpLayer.className='layer'; $('cmpClip').appendChild(cmpLayer);
+
+const lerp=(a,b,t)=>a+(b-a)*t, ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+let shown=-1, tm;
+
+function render(i){
+  const s=STEPS[i];
+  card.classList.toggle('hero', !!s.hero);
+  $('cPart').textContent=s.part||''; $('cPart').hidden=!s.part;
+  $('cTitle').textContent=s.title; $('cBody').innerHTML=s.body||'';
+  const c=$('cCols'); c.hidden=!(s.can||s.cant);
+  c.innerHTML=(s.can||s.cant)?`<div><strong>The image can show</strong>${s.can||''}</div><div class="no"><strong>It cannot show</strong>${s.cant||''}</div>`:'';
+  $('credit').innerHTML=s.credit||'';
+  document.querySelectorAll('.mk').forEach(m=>m.classList.toggle('show', +m.dataset.step===i));
+  $('cmp').classList.toggle('show', !!s.compare);
+  if(s.compare){ $('tagA').textContent=(s.labels||[])[0]||'Before'; $('tagB').textContent=(s.labels||[])[1]||'After'; }
+}
+function swap(i){
+  shown=i; card.classList.add('out'); clearTimeout(tm);
+  tm=setTimeout(()=>{render(i);card.classList.remove('out')},180);
+}
+
+function update(){
+  const total=story.offsetHeight-innerHeight;
+  const p=Math.min(1,Math.max(0,-story.getBoundingClientRect().top/total));
+  const pos=p*(n-1), s=Math.min(n-2,Math.floor(pos)), f=pos-s;
+  const a=STEPS[s], b=STEPS[s+1];
+  // 1) the image moves first (first 55% of each step)...
+  const t=ease(Math.min(f/0.55,1));
+  const fx=lerp(a.fx,b.fx,t), fy=lerp(a.fy,b.fy,t), z=lerp(a.z,b.z,t);
+  [...Object.values(layers),cmpLayer].forEach(L=>{
+    L.style.transformOrigin=`${fx}% ${fy}%`;
+    L.style.transform=`translate(${50-fx}%,${50-fy}%) scale(${z})`;
+    L.style.setProperty('--iz',1/z);
+  });
+  const key = f>0.12 ? b.img : a.img;
+  Object.entries(layers).forEach(([k,L])=>L.classList.toggle('on',k===key));
+  // 2) ...then the text changes
+  const ti = f>=0.6 ? s+1 : s;
+  if(ti!==shown) swap(ti);
+  $('bar').style.width=(p*100)+'%';
+}
+// slider: drag the handle, or use the arrow keys when it is focused
+const cmpEl=$('cmp'), handle=$('cmpHandle');
+function setP(v){v=Math.min(100,Math.max(0,v));cmpEl.style.setProperty('--p',v+'%');handle.setAttribute('aria-valuenow',Math.round(v))}
+handle.addEventListener('pointerdown',e=>{handle.setPointerCapture(e.pointerId);e.preventDefault()});
+handle.addEventListener('pointermove',e=>{if(handle.hasPointerCapture(e.pointerId))setP(e.clientX/innerWidth*100)});
+handle.addEventListener('keydown',e=>{
+  const cur=parseFloat(handle.getAttribute('aria-valuenow'));
+  if(e.key==='ArrowLeft'){setP(cur-5);e.preventDefault()}
+  if(e.key==='ArrowRight'){setP(cur+5);e.preventDefault()}
+});
+
+render(0); shown=0; layers[STEPS[0].img].classList.add('on');
+addEventListener('scroll',()=>requestAnimationFrame(update),{passive:true});
+addEventListener('resize',update);
+update();
+</script>
+</body>
+</html>
